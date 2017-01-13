@@ -1,0 +1,28 @@
+modules:
+  SceSblSsMgr:
+    nid: 0x4E913538
+    libraries:
+      SceSblSsMgrForDriver:
+        kernel: true
+        nid: 0x61E9428D
+        functions:
+          ksceSblSsMgrGenerate40: 0xac57f4f0
+  SceSysmem:
+    nid: 0x3380B323
+    libraries:
+      SceSysrootForKernel:
+        kernel: true
+        nid: 0x3691DA45
+        functions:
+          ksceSysrootContextInit: 0xf10ab792
+  SceSblSsSmComm:
+    nid: 0xBB4B5D92
+    libraries:
+      SceSblSmCommForKernel:
+        kernel: true
+        nid: 0xCD3C89B6
+        functions:
+          sceSblSmCommStartSm: 0x039c73b1
+          sceSblSmCommCallFunc: 0xdb9fc204
+          sceSblSmCommStopSm: 0x0631f8ed
+          sceSblSmCommStartSm2: 0x7863a0cc 

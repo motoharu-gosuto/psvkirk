@@ -288,7 +288,21 @@ int handle_command_4(command_4_request* req)
     psvDebugScreenPrintf("psvkirk: failed to execute command 4 with error: %x status: %x\n", resp.proxy_err, debugStatus);
   }
     
-  return sceNetSend(_cli_sock, &resp, sizeof(command_4_response), 0);
+  int bytesToSend = sizeof(command_4_response);
+  int bytesWereSend = 0;
+  while(bytesWereSend != bytesToSend)
+  {
+     int sendLen = sceNetSend(_cli_sock, ((char*)&resp) + bytesWereSend, bytesToSend - bytesWereSend, 0);
+     if(sendLen <= 0)
+     {
+        psvDebugScreenPrintf("psvkirk: failed to send data\n");
+        return - 1;
+     }
+     
+     bytesWereSend = bytesWereSend + sendLen;
+  }
+  
+  return 0;
 }
 
 void receive_commands()
@@ -335,27 +349,32 @@ void receive_commands()
       break;
     case PSVKIRK_COMMAND_KIRK:
       {
-	command_4_request recvBuffer;
-	recvBuffer.command = command;
-	
-	int additionalSize = (sizeof(command_4_request) - 4);
-	int recvLen4 = sceNetRecv(_cli_sock, &recvBuffer.kirk_command, additionalSize, 0);
-	if(recvLen4 != additionalSize)
+         command_4_request recvBuffer;
+         recvBuffer.command = command;
+
+         int bytesToReceive = (sizeof(command_4_request) - sizeof(int));
+         int bytesWereReceived = 0;
+         while(bytesWereReceived != bytesToReceive)
+         {
+            int recvLen4 = sceNetRecv(_cli_sock, (((char*)&recvBuffer) + sizeof(int) + bytesWereReceived), bytesToReceive - bytesWereReceived, 0);
+            if(recvLen4 <= 0)
+            {
+              psvDebugScreenPrintf("psvkirk: failed to receive data\n");
+              return;
+            }
+            bytesWereReceived = bytesWereReceived + recvLen4;
+         }
+
+        if(handle_command_4(&recvBuffer) < 0)
         {
-	  psvDebugScreenPrintf("psvkirk: failed to receive data %x %x\n", additionalSize, recvLen4);
-	  return;
+          psvDebugScreenPrintf("psvkirk: failed to handle command 4\n");
+          return;
         }
-	
-	if(handle_command_4(&recvBuffer) < 0)
-	{
-	  psvDebugScreenPrintf("psvkirk: failed to handle command 4\n");
-	  return;
-	}
       }
       break;
     default:
-	psvDebugScreenPrintf("psvkirk: unknown command\n");
-	return;
+      psvDebugScreenPrintf("psvkirk: unknown command\n");
+      return;
     }
   }
 }

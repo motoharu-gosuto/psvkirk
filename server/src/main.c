@@ -137,6 +137,11 @@ void deinit_net()
 #define PSVKIRK_COMMAND_KIRK 4
  
 #pragma pack(push, 1)
+
+typedef struct command_0_request
+{
+  int command;
+} command_0_request;
  
 typedef struct command_0_response
 {
@@ -146,6 +151,11 @@ typedef struct command_0_response
     char data[10];
 } command_0_response;
 
+typedef struct command_1_request
+{
+  int command;
+} command_1_request;
+
 typedef struct command_1_response
 {
     int command;
@@ -154,6 +164,11 @@ typedef struct command_1_response
     char data[10];
 } command_1_response;
  
+typedef struct command_2_request
+{
+  int command;
+} command_2_request;
+
 typedef struct command_2_response
 {
     int command;
@@ -161,7 +176,12 @@ typedef struct command_2_response
     int proxy_err;
     char data[0x10];
 } command_2_response;
- 
+
+typedef struct command_3_request
+{
+  int command;
+} command_3_request;
+
 typedef struct command_3_response
 {
     int command;
@@ -190,7 +210,7 @@ typedef struct command_4_response
  
 #pragma pack(pop)
 
-int handle_command_0(char* recvBuffer)
+int handle_command_0()
 {
   command_0_response resp;
   memset(&resp, 0, sizeof(command_0_response));
@@ -202,7 +222,7 @@ int handle_command_0(char* recvBuffer)
   return sceNetSend(_cli_sock, &resp, sizeof(command_0_response), 0);
 }
 
-int handle_command_1(char* recvBuffer)
+int handle_command_1()
 {
   command_1_response resp;
   memset(&resp, 0, sizeof(command_1_response));
@@ -214,7 +234,7 @@ int handle_command_1(char* recvBuffer)
   return sceNetSend(_cli_sock, &resp, sizeof(command_1_response), 0);
 }
  
-int handle_command_2(char* recvBuffer)
+int handle_command_2()
 {
   command_2_response resp;
   memset(&resp, 0, sizeof(command_2_response));
@@ -232,7 +252,7 @@ int handle_command_2(char* recvBuffer)
   return sceNetSend(_cli_sock, &resp, sizeof(command_2_response), 0);
 }
  
-int handle_command_3(char* recvBuffer)
+int handle_command_3()
 {
   command_3_response resp;
   memset(&resp, 0, sizeof(command_3_response));
@@ -250,10 +270,8 @@ int handle_command_3(char* recvBuffer)
   return sceNetSend(_cli_sock, &resp, sizeof(command_3_response), 0);
 }
  
-int handle_command_4(char* recvBuffer)
-{
-  command_4_request* req = (command_4_request*)recvBuffer; //max buffer length
-    
+int handle_command_4(command_4_request* req)
+{  
   command_4_response resp;
   memset(&resp, 0, sizeof(command_4_response));
   resp.command = PSVKIRK_COMMAND_KIRK;
@@ -275,53 +293,64 @@ int handle_command_4(char* recvBuffer)
 
 void receive_commands()
 {
-  char recvBuffer[sizeof(command_4_request)];
- 
   while(1)
   {
-    int recvLen = sceNetRecv(_cli_sock, recvBuffer, sizeof(command_4_request), 0);
+    int command = -1;
+    int recvLen = sceNetRecv(_cli_sock, &command, sizeof(int), 0);
     if(recvLen <= 0)
     {
       psvDebugScreenPrintf("psvkirk: failed to receive data\n");
       return;
     }
 	  
-    int command = *((int*)recvBuffer);
     switch(command)
     {
     case PSVKIRK_COMMAND_PING:
-      if(handle_command_0(recvBuffer) < 0)
-      {
-	psvDebugScreenPrintf("psvkirk: failed to handle command 0\n");
-	return;
-      }
+       if(handle_command_0() < 0)
+       {
+	 psvDebugScreenPrintf("psvkirk: failed to handle command 0\n");
+	 return;
+       }
       break;
     case PSVKIRK_COMMAND_TERM:
-      if(handle_command_1(recvBuffer) < 0)
+      if(handle_command_1() < 0)
       {
 	psvDebugScreenPrintf("psvkirk: failed to handle command 1\n");
 	return;
       }
       return;
     case PSVKIRK_COMMAND_GEN10:
-      if(handle_command_2(recvBuffer) < 0)
+      if(handle_command_2() < 0)
       {
 	psvDebugScreenPrintf("psvkirk: failed to handle command 2\n");
 	return;
       }
       break;
     case PSVKIRK_COMMAND_GEN20:
-      if(handle_command_3(recvBuffer) < 0)
+      if(handle_command_3() < 0)
       {
 	psvDebugScreenPrintf("psvkirk: failed to handle command 3\n");
 	return;
       }
       break;
     case PSVKIRK_COMMAND_KIRK:
-      if(handle_command_4(recvBuffer) < 0)
       {
-	psvDebugScreenPrintf("psvkirk: failed to handle command 4\n");
-	return;
+	command_4_request recvBuffer;
+	recvBuffer.command = command;
+	
+	int additionalSize = (sizeof(command_4_request) - 4);
+	int recvLen4 = sceNetRecv(_cli_sock, &recvBuffer.kirk_command, additionalSize, 0);
+	if(recvLen4 != additionalSize)
+        {
+	  psvDebugScreenPrintf("psvkirk: failed to receive data %x %x\n", additionalSize, recvLen4);
+	  return;
+        }
+	
+	if(handle_command_4(&recvBuffer) < 0)
+	{
+	  psvDebugScreenPrintf("psvkirk: failed to handle command 4\n");
+	  return;
+	}
       }
       break;
     default:

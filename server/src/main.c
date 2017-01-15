@@ -224,7 +224,7 @@ int handle_command_2(char* recvBuffer)
 
   resp.proxy_err = psvkirkGenerate10(resp.data);
     
-  if(resp.proxy_err < 0)
+  if(resp.proxy_err != 0)
   {
     psvDebugScreenPrintf("psvkirk: failed to execute command 2\n");
     return resp.proxy_err;
@@ -243,7 +243,7 @@ int handle_command_3(char* recvBuffer)
 
   resp.proxy_err = psvkirkGenerate20(resp.data);
     
-  if(resp.proxy_err < 0)
+  if(resp.proxy_err != 0)
   {
     psvDebugScreenPrintf("psvkirk: failed to execute command 3\n");
     resp.proxy_err;
@@ -254,19 +254,22 @@ int handle_command_3(char* recvBuffer)
  
 int handle_command_4(char* recvBuffer)
 {
-  command_4_request* req = (command_4_request*)recvBuffer;
+  command_4_request* req = (command_4_request*)recvBuffer; //max buffer length
     
   command_4_response resp;
   memset(&resp, 0, sizeof(command_4_response));
   resp.command = PSVKIRK_COMMAND_KIRK;
   
   psvDebugScreenPrintf("psvkirk: execute command 4\n");
+  
+  psvDebugScreenPrintf("calling with args %x %x %x", req->kirk_command, req->size, req->kirk_param);
     
-  resp.proxy_err = psvkirkCallService1000B(resp.data, req->data, req->kirk_command, req->size, req->kirk_param, &resp.size);
+  int debugStatus = 0;
+  resp.proxy_err = psvkirkCallService1000B(resp.data, req->data, req->kirk_command, req->size, req->kirk_param, &resp.size, &debugStatus);
     
-  if(resp.proxy_err < 0)
+  if(resp.proxy_err != 0)
   {
-    psvDebugScreenPrintf("psvkirk: failed to execute command 4\n");
+    psvDebugScreenPrintf("psvkirk: failed to execute command 4 with error: %x status: %x\n", resp.proxy_err, debugStatus);
     return resp.proxy_err;
   }
     
@@ -275,11 +278,11 @@ int handle_command_4(char* recvBuffer)
 
 void receive_commands()
 {
-  char recvBuffer[0x200];
+  char recvBuffer[sizeof(command_4_request)];
  
   while(1)
   {
-    int recvLen = sceNetRecv(_cli_sock, recvBuffer, 0x200, 0);
+    int recvLen = sceNetRecv(_cli_sock, recvBuffer, sizeof(command_4_request), 0);
     if(recvLen <= 0)
     {
       psvDebugScreenPrintf("psvkirk: failed to receive data\n");

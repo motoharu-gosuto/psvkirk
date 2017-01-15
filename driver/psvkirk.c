@@ -174,8 +174,11 @@ int copy_response(char* destination, char* source, int size, int* respSizeDest, 
      return exit_1(res_0, var97C);
    
    int res_1 = ksceKernelMemcpyKernelToUser((uintptr_t)respSizeDest, &size, sizeof(int));
+   
+   if(res_0 < 0)
+     return exit_1(res_1, var97C);
  
-   return exit_1(res_0, var97C);
+   return exit_1(ret, var97C);
 }
  
 int handle_response(int respSize, int command, int* var97C, char* source, char* destination, int* respSizeDest)
@@ -231,9 +234,14 @@ int handle_response(int respSize, int command, int* var97C, char* source, char* 
         return copy_response(destination, source, respSize, respSizeDest, 0, var97C); 
     }
 }
+
+void setDebugStatus(int value, int* debugStatus)
+{
+  ksceKernelMemcpyKernelToUser((uintptr_t)debugStatus, &value, sizeof(int));
+}
  
 //calls kirk service - partial reimplementation of sub_CAC924
-int psvkirkCallService1000B(char* destination, char* source_user, int command, int size, int packet6_de, int* respSize)
+int psvkirkCallService1000B(char* destination, char* source_user, int command, int size, int packet6_de, int* respSize, int* debugStatus)
 {    
     int var97C = -1;
     int var978 = 0x00;
@@ -252,6 +260,8 @@ int psvkirkCallService1000B(char* destination, char* source_user, int command, i
      
     if(size > 0x800)
         return 0x800F1816;
+    
+    setDebugStatus(0x11, debugStatus);
      
     if(source_user != 0)
     {
@@ -263,6 +273,8 @@ int psvkirkCallService1000B(char* destination, char* source_user, int command, i
     int res0 = ksceSysrootContextInit(0, &state);
     if(res0 < 0)
         return 0x800F1816;
+    
+    setDebugStatus(0x22, debugStatus);
       
     memset(ctx.var968, 0x00, 0x130);
  
@@ -274,13 +286,19 @@ int psvkirkCallService1000B(char* destination, char* source_user, int command, i
     int res1 = sceSblSmCommStartSm(0x00, state.unk_4_var970, state.unk_8_var96C, 0x00, &ctx, &var97C);
     if(res1 != 0)
        return exit_1(res1, &var97C);
+    
+    setDebugStatus(0x33, debugStatus);
          
     int res2 = sceSblSmCommCallFunc(var97C, 0x1000B, &var978, &ctx.var838, 0x814);
     if(res2 != 0)
        return exit_1(res2, &var97C);
+    
+    setDebugStatus(0x44, debugStatus);
          
     if(var978 != 0)
        return exit_1(var978, &var97C);
+    
+    setDebugStatus(0x55, debugStatus);
          
     return handle_response(ctx.size, ctx.command, &var97C, ctx.data, destination, respSize);
 }

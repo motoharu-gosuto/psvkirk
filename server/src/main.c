@@ -227,7 +227,6 @@ int handle_command_2(char* recvBuffer)
   if(resp.proxy_err != 0)
   {
     psvDebugScreenPrintf("psvkirk: failed to execute command 2\n");
-    return resp.proxy_err;
   }
 
   return sceNetSend(_cli_sock, &resp, sizeof(command_2_response), 0);
@@ -246,7 +245,6 @@ int handle_command_3(char* recvBuffer)
   if(resp.proxy_err != 0)
   {
     psvDebugScreenPrintf("psvkirk: failed to execute command 3\n");
-    resp.proxy_err;
   }
     
   return sceNetSend(_cli_sock, &resp, sizeof(command_3_response), 0);
@@ -262,15 +260,14 @@ int handle_command_4(char* recvBuffer)
   
   psvDebugScreenPrintf("psvkirk: execute command 4\n");
   
-  psvDebugScreenPrintf("calling with args %x %x %x", req->kirk_command, req->size, req->kirk_param);
+  psvDebugScreenPrintf("calling with args %x %x %x\n", req->kirk_command, req->size, req->kirk_param);
     
-  int debugStatus = 0;
+  int debugStatus = -1;
   resp.proxy_err = psvkirkCallService1000B(resp.data, req->data, req->kirk_command, req->size, req->kirk_param, &resp.size, &debugStatus);
     
   if(resp.proxy_err != 0)
   {
     psvDebugScreenPrintf("psvkirk: failed to execute command 4 with error: %x status: %x\n", resp.proxy_err, debugStatus);
-    return resp.proxy_err;
   }
     
   return sceNetSend(_cli_sock, &resp, sizeof(command_4_response), 0);

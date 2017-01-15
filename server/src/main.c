@@ -280,12 +280,11 @@ int handle_command_4(command_4_request* req)
   
   psvDebugScreenPrintf("calling with args %x %x %x\n", req->kirk_command, req->size, req->kirk_param);
     
-  int debugStatus = -1;
-  resp.proxy_err = psvkirkCallService1000B(resp.data, req->data, req->kirk_command, req->size, req->kirk_param, &resp.size, &debugStatus);
+  resp.proxy_err = psvkirkCallService1000B(resp.data, req->data, req->kirk_command, req->size, req->kirk_param, &resp.size);
     
   if(resp.proxy_err != 0)
   {
-    psvDebugScreenPrintf("psvkirk: failed to execute command 4 with error: %x status: %x\n", resp.proxy_err, debugStatus);
+    psvDebugScreenPrintf("psvkirk: failed to execute command 4 with error: %x\n", resp.proxy_err);
   }
     
   int bytesToSend = sizeof(command_4_response);

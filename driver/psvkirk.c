@@ -235,14 +235,8 @@ int handle_response(int respSize, int command, int* var97C, char* source, char* 
     }
 }
 
-void setDebugStatus(int value, int* debugStatus)
-{
-  int valueTemp = value;
-  ksceKernelMemcpyKernelToUser((uintptr_t)debugStatus, &valueTemp, sizeof(int));
-}
- 
 //calls kirk service - partial reimplementation of sub_CAC924
-int psvkirkCallService1000B(char* destination, char* source_user, int command, int size, int packet6_de, int* respSize, int* debugStatus)
+int psvkirkCallService1000B(char* destination, char* source_user, int command, int size, int packet6_de, int* respSize)
 {    
     int var97C = -1;
     int var978 = 0x00;
@@ -259,25 +253,19 @@ int psvkirkCallService1000B(char* destination, char* source_user, int command, i
     ctx.size = size;
     ctx.var28 = 0x00;
     
-    setDebugStatus(0x11, debugStatus);
-    
     if(size > 0x800)
         return 0x800F1816;
-    
-    setDebugStatus(0x22, debugStatus);
      
     if(source_user != 0)
     {
         int res_cpy = ksceKernelMemcpyUserToKernel(ctx.data, (uintptr_t)source_user, size);
         if(res_cpy < 0)
-            return res_cpy;
+            return 0x111;
     }
  
     int res0 = ksceSysrootContextInit(0, &state);
     if(res0 < 0)
         return 0x800F1816;
-    
-    setDebugStatus(0x33, debugStatus);
       
     memset(ctx.var968, 0x00, 0x130);
  
@@ -288,20 +276,14 @@ int psvkirkCallService1000B(char* destination, char* source_user, int command, i
      
     int res1 = sceSblSmCommStartSm(0x00, state.unk_4_var970, state.unk_8_var96C, 0x00, &ctx, &var97C);
     if(res1 != 0)
-       return exit_1(res1, &var97C);
-    
-    setDebugStatus(0x44, debugStatus);
+       return exit_1(0x222, &var97C);
          
     int res2 = sceSblSmCommCallFunc(var97C, 0x1000B, &var978, &ctx.var838, 0x814);
     if(res2 != 0)
-       return exit_1(res2, &var97C);
-    
-    setDebugStatus(0x55, debugStatus);
+       return exit_1(0x333, &var97C);
          
     if(var978 != 0)
-       return exit_1(var978, &var97C);
-    
-    setDebugStatus(0x66, debugStatus);
+       return exit_1(0x444, &var97C);
          
     return handle_response(ctx.size, ctx.command, &var97C, ctx.data, destination, respSize);
 }

@@ -280,7 +280,13 @@ int handle_command_4(command_4_request* req)
   
   psvDebugScreenPrintf("calling with args %x %x %x\n", req->kirk_command, req->size, req->kirk_param);
     
-  resp.proxy_err = psvkirkCallService1000B(resp.data, req->data, req->kirk_command, req->size, req->kirk_param, &resp.size);
+  kirk1000B_params params;
+  params.command = req->kirk_command;
+  params.size = req->size;
+  params.packet6_de = req->kirk_param;
+  params.respSize = &resp.size;
+  
+  resp.proxy_err = psvkirkCallService1000B(resp.data, req->data, &params);
     
   if(resp.proxy_err != 0)
   {

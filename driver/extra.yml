@@ -14,7 +14,7 @@ modules:
         kernel: true
         nid: 0x3691DA45
         functions:
-          ksceSysrootContextInit: 0xf10ab792
+          ksceSysrootGetElf: 0xf10ab792
   SceSblSsSmComm:
     nid: 0xBB4B5D92
     libraries:
@@ -22,7 +22,7 @@ modules:
         kernel: true
         nid: 0xCD3C89B6
         functions:
-          sceSblSmCommStartSm: 0x039c73b1
-          sceSblSmCommCallFunc: 0xdb9fc204
-          sceSblSmCommStopSm: 0x0631f8ed
-          sceSblSmCommStartSm2: 0x7863a0cc 
+          ksceSblSmCommStartSm: 0x039c73b1
+          ksceSblSmCommCallFunc: 0xdb9fc204
+          ksceSblSmCommStopSm: 0x0631f8ed
+          ksceSblSmCommStartSm2: 0x7863a0cc 

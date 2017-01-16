@@ -41,7 +41,7 @@ target_link_libraries(psvkirk
   #SceThreadmgrForDriver_stub
   #SceModulemgrForKernel_stub
   #SceModulemgrForDriver_stub
-  #SceIofilemgrForDriver_stub
+  SceIofilemgrForDriver_stub
   #SceSblACMgrForDriver_stub
   #SceDebugForDriver_stub
   SceSblSmCommForKernel_stub

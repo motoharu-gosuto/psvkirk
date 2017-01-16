@@ -163,7 +163,7 @@ int exit_3(int* var97C, pair_CAC8C0* result)
  
 int exit_2(int* var97C)
 {
-   pair_CAC8C0 result; //what is the point in using this pair?
+   pair_CAC8C0 result;
  
    if(var97C == 0)
       return 0x800F1816;
@@ -198,10 +198,7 @@ int copy_response(char* destination, char* source, int size, int* respSizeDest, 
     if(res_0 < 0)
       return exit_1(res_0, var97C);
     
-    char sizeData[4];
-    memcpy(sizeData, (char*)&size, 4);
-    
-    int res_1 = ksceKernelMemcpyKernelToUser((uintptr_t)respSizeDest, sizeData, 4);
+    int res_1 = ksceKernelMemcpyKernelToUser((uintptr_t)respSizeDest, &size, sizeof(int));
     if(res_1 < 0)
      return exit_1(res_1, var97C);
    }
@@ -265,14 +262,12 @@ int handle_response(int respSize, int command, int* var97C, char* source, char* 
 
 char src_data_const[0x60];
 
+//this should not be on stack!
+//looks like too much data corrupts the stack
 context_039c73b1 ctxg;
 
-void emulate_kirk(char* srcbf, int cmd, int srcbfsize, int packet6_de)
+int emulate_kirk(char* srcbf, int cmd, int srcbfsize, int packet6_de, char* destination, int* respSize)
 {
-   open_global_log();
-  
-   //-------------------------------
-  
    input_f10ab792 state;
    state.size = sizeof(input_f10ab792);
    state.unk_4_var970 = 0x00;
@@ -280,17 +275,7 @@ void emulate_kirk(char* srcbf, int cmd, int srcbfsize, int packet6_de)
 
    int res0 = ksceSysrootGetElf(0, &state);
    if(res0 < 0)
-   {
-      close_global_log();
-      return;
-   }
-   
-   char buffer[50];
-   snprintf(buffer, 50, "ptr: %x size %x\n", state.unk_4_var970, state.unk_8_var96C);
-   FILE_WRITE_LEN(global_log_fd, buffer);
-   /*
-   ksceIoWrite(global_log_fd, (char*)state.unk_4_var970, state.unk_8_var96C);
-   */
+      return 0x800F1816;
    
    char var968[0x130]; // two structures of size ox98 ?
    memset(var968, 0x00, 0x130);
@@ -299,42 +284,12 @@ void emulate_kirk(char* srcbf, int cmd, int srcbfsize, int packet6_de)
    var968[0x04] = 0x02;
    var968[0x128] = 0x02;
     
-   int var97C = -1; //id ?
+   int var97C = -1; //id
      
    int res1 = ksceSblSmCommStartSm(0x00, state.unk_4_var970, state.unk_8_var96C, 0x00, var968, &var97C);
    
-   {
-     
-     char buffer[50];
-     snprintf(buffer, 50, "id: %x\n", var97C);
-     FILE_WRITE_LEN(global_log_fd, buffer);
-   }
-   
    if(res1 != 0)
-   {
-      FILE_WRITE(global_log_fd, "Failed ksceSblSmCommStartSm!\n");
-      
-      if(var97C == -1 || var97C == 0)
-      {
-	close_global_log();
-	return;      
-      }
- 
-      pair_CAC8C0 result;
-      result.unk_0 = -1;
-      result.unk_4 = -1;
-      ksceSblSmCommStopSm(var97C, &result);
-    
-      var97C = -1;
-      
-      close_global_log();
-      return;
-   }
-   
-   FILE_WRITE(global_log_fd, "Success ksceSblSmCommStartSm!\n");
-   
-   //-------------------------------
-   
+      return exit_1(res1, &var97C);
    
    ctxg.var838 = 0x01;
    ctxg.command = cmd;
@@ -349,97 +304,13 @@ void emulate_kirk(char* srcbf, int cmd, int srcbfsize, int packet6_de)
     
    int res2 = ksceSblSmCommCallFunc(var97C, 0x1000B, &var978, &ctxg, 0x814);
    
-   {
-     
-     char buffer[50];
-     snprintf(buffer, 50, "res2: %x\n", res2);
-     FILE_WRITE_LEN(global_log_fd, buffer);
-   }
-   
    if(res2 != 0)
-   {
-      FILE_WRITE(global_log_fd, "Failed ksceSblSmCommCallFunc!\n");
-      
-      if(var97C == -1 || var97C == 0)
-      {
-	close_global_log();
-	return;      
-      }
- 
-      pair_CAC8C0 result;
-      result.unk_0 = -1;
-      result.unk_4 = -1;
-      ksceSblSmCommStopSm(var97C, &result);
-    
-      var97C = -1;
-      
-      close_global_log();
-      return;
-   }
+      return exit_1(res2, &var97C);
    
-   {
-     
-     char buffer[50];
-     snprintf(buffer, 50, "var978: %x\n", var978);
-     FILE_WRITE_LEN(global_log_fd, buffer);
-   }
-      
    if(var978 != 0)
-   {
-      FILE_WRITE(global_log_fd, "Failed ksceSblSmCommCallFunc!\n");
-      
-      if(var97C == -1 || var97C == 0)
-      {
-	close_global_log();
-	return;      
-      }
- 
-      pair_CAC8C0 result;
-      result.unk_0 = -1;
-      result.unk_4 = -1;
-      ksceSblSmCommStopSm(var97C, &result);
-    
-      var97C = -1;
-      
-      close_global_log();
-      return;
-   }
+      return exit_1(var978, &var97C);
    
-   FILE_WRITE(global_log_fd, "Success ksceSblSmCommCallFunc!\n");
-   
-   //-------------------------------
-   
-   if(var97C == -1 || var97C == 0)
-   {
-     close_global_log();
-     return;
-   }
-
-   pair_CAC8C0 result2;
-   result2.unk_0 = -1;
-   result2.unk_4 = -1;
-   int res3 = ksceSblSmCommStopSm(var97C, &result2);
-   
-   {
-     
-     char buffer[50];
-     snprintf(buffer, 50, "res3: %x\n", res3);
-     FILE_WRITE_LEN(global_log_fd, buffer);
-   }
-   
-   if(res3 < 0)
-   {
-     FILE_WRITE(global_log_fd, "Failed ksceSblSmCommStopSm!\n");
-     close_global_log();
-     return;
-   }
-   
-   FILE_WRITE(global_log_fd, "Success ksceSblSmCommStopSm!\n");
-   
-   var97C = -1;
-   
-   close_global_log();
-   return;
+   return handle_response(ctxg.size, ctxg.command, &var97C, ctxg.data, destination, respSize);
 }
 
 //calls kirk service - partial reimplementation of sub_CAC924
@@ -448,19 +319,17 @@ int psvkirkCallService1000B(char* destination, char* source_user, kirk1000B_para
   kirk1000B_params plocal;
   ksceKernelMemcpyUserToKernel(&plocal, (uintptr_t)params, sizeof(kirk1000B_params));
   
-  ksceKernelMemcpyUserToKernel(src_data_const, (uintptr_t)source_user, plocal.size);
+  if(plocal.size > 0x800)
+    return 0x800F1816;
   
-  open_global_log();
-  for(int i=0;i< plocal.size; i++)
+  if(source_user != 0)
   {
-    char buffer[10];
-    snprintf(buffer, 10, "%x ", src_data_const[i]);
-    FILE_WRITE_LEN(global_log_fd, buffer);
+    int res_cpy = ksceKernelMemcpyUserToKernel(src_data_const, (uintptr_t)source_user, plocal.size);
+    if(res_cpy < 0)
+      return res_cpy;
   }
-  FILE_WRITE(global_log_fd, "\n");
-  close_global_log();
   
-  emulate_kirk(src_data_const, plocal.command, plocal.size, plocal.packet6_de);
+  emulate_kirk(src_data_const, plocal.command, plocal.size, plocal.packet6_de, destination, plocal.respSize);
   return 0;
   
   /*
@@ -477,7 +346,7 @@ int psvkirkCallService1000B(char* destination, char* source_user, kirk1000B_para
     {
         int res_cpy = ksceKernelMemcpyUserToKernel(ctxg.data, (uintptr_t)source_user, size);
         if(res_cpy < 0)
-            return 0x111;
+            return res_cpy;
     }
     
     input_f10ab792 state;

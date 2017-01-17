@@ -189,7 +189,7 @@ int exit_1(int ret, int* var97C)
  
 int copy_response(char* destination, char* source, int size, int* respSizeDest, int ret, int* var97C)
 {
-   if(destination == 0)
+   if(destination == 0 || respSizeDest == 0)
       return exit_1(ret, var97C);
  
    if(size > 0)
@@ -329,8 +329,7 @@ int psvkirkCallService1000B(char* destination, char* source_user, kirk1000B_para
       return res_cpy;
   }
   
-  emulate_kirk(src_data_const, plocal.command, plocal.size, plocal.packet6_de, destination, plocal.respSize);
-  return 0;
+  return emulate_kirk(src_data_const, plocal.command, plocal.size, plocal.packet6_de, destination, plocal.respSize);
   
   /*
     if(size > 0x800)

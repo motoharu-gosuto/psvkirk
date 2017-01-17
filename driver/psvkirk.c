@@ -260,7 +260,7 @@ int handle_response(int respSize, int command, int* var97C, char* source, char* 
     }
 }
 
-char src_data_const[0x60];
+char src_data_const[0x800];
 
 //this should not be on stack!
 //looks like too much data corrupts the stack
@@ -388,8 +388,6 @@ int module_start(SceSize argc, const void *args)
    open_global_log();
    FILE_WRITE(global_log_fd, "Hello from psvkirk 1!\n");
    close_global_log();
-   
-   //emulate_kirk(src_data_const, 0x1B, 0x53, 0x0001);
    
    return SCE_KERNEL_START_SUCCESS;
 }

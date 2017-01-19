@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #define FILE_WRITE(f, msg) if(f >= 0) ksceIoWrite(f, msg, sizeof(msg))
 #define FILE_WRITE_LEN(f, msg) if(f >= 0) ksceIoWrite(f, msg, strlen(msg))
@@ -382,12 +383,252 @@ int psvkirkCallService1000B(char* destination, char* source_user, kirk1000B_para
     return handle_response(ctxg.size, ctxg.command, &var97C, ctxg.data, destination, respSize);
     */
 }
+
+typedef struct sd_ctx_global
+{
+  int unk_0;
+} sd_ctx_global;
+
+typedef struct sd_ctx_part
+{
+  int unk_0;
+} sd_ctx_part;
+
+sd_ctx_global* ksceSdifGetSdGlobalContextElement(int sd_ctx_idx);
+
+sd_ctx_part* ksceSdifGetSdGlobalContextElement0Part(int sd_ctx_idx);
+sd_ctx_part* ksceSdifGetSdGlobalContextElement1Part(int sd_ctx_idx);
+sd_ctx_part* ksceSdifGetSdGlobalContextElement2Part(int sd_ctx_idx);
+
+int ksceSdifGetGetCardInsertState1(int sd_ctx_idx);
+int ksceSdifGetGetCardInsertState2(int sd_ctx_idx);
+
+int ksceSdifInitializeSdDevice(int sd_ctx_index, sd_ctx_part** result);
+
+#define SD_MODE_SINGLE_OP 1
+//any othe number should be multiple op
+
+//single mode means reading / writing single sector with CMD17 / CMD24
+//multiple mode means reading / writing multiple sectors with CMD18 / CMD25
+
+int ksceSdifReadSectorAsync(sd_ctx_part* ctx, int sector, char* buffer, int mode);
+int ksceSdifReadSector(sd_ctx_part* ctx, int sector, char* buffer, int mode);
+int ksceSdifWriteSectorAsync(sd_ctx_part* ctx, int sector, char* buffer, int mode);
+int ksceSdifWriteSector(sd_ctx_part* ctx, int sector, char* buffer, int mode);
+
+int dump_sd_elements()
+{
+  sd_ctx_global* e0 = ksceSdifGetSdGlobalContextElement(0);
+  sd_ctx_global* e1 = ksceSdifGetSdGlobalContextElement(1);
+  sd_ctx_global* e2 = ksceSdifGetSdGlobalContextElement(2);
+  sd_ctx_global* e3 = ksceSdifGetSdGlobalContextElement(3);
+  
+  sd_ctx_part* p1 = ksceSdifGetSdGlobalContextElement0Part(0);
+  sd_ctx_part* p2 = ksceSdifGetSdGlobalContextElement1Part(1);
+  sd_ctx_part* p3 = ksceSdifGetSdGlobalContextElement2Part(2);
+  
+  int is0_0 = ksceSdifGetGetCardInsertState1(0); //inserted
+  int is0_1 = ksceSdifGetGetCardInsertState1(1); //not inserted
+  int is0_2 = ksceSdifGetGetCardInsertState1(2); //inserted
+  
+  //int is1_0 = ksceSdifGetGetCardInsertState2(0);
+  //int is1_1 = ksceSdifGetGetCardInsertState2(1);
+  //int is1_2 = ksceSdifGetGetCardInsertState2(2);
+  
+  sd_ctx_part* einit0 = 0;
+  int res0 = ksceSdifInitializeSdDevice(0, &einit0);
+  //int is0_01 = ksceSdifGetGetCardInsertState1(0);
+  
+  int idx0 = *((int*)(((char*)e0) + 0x2400 + 0x10)); //get index of device
+  int idx1 = *((int*)(((char*)e1) + 0x2400 + 0x10)); //get index of device
+  int idx2 = *((int*)(((char*)e2) + 0x2400 + 0x10)); //get index of device
+    
+  sd_ctx_part* ctxpart0 = *((sd_ctx_part**)(((char*)e0) + 0x2400 + 0x14)); //check that context part pointer is same as if I get it directly without function
+  sd_ctx_part* ctxpart1 = *((sd_ctx_part**)(((char*)e1) + 0x2400 + 0x14)); //check that context part pointer is same as if I get it directly without function
+  sd_ctx_part* ctxpart2 = *((sd_ctx_part**)(((char*)e2) + 0x2400 + 0x14)); //check that context part pointer is same as if I get it directly without function
+  
+  //char buff[0x200];
+  //memset(buff, 0, 0x200);
+  
+  //int res1 = ksceSdifReadSectorAsync(einit0, 0, buff, SD_MODE_SINGLE_OP);
+  
+  open_global_log();
+  {
+    char buffer[100];
+    snprintf(buffer, 100, "%x %x %x %x\n", e0, e1, e2, e3);
+    FILE_WRITE_LEN(global_log_fd, buffer);
+
+    snprintf(buffer, 100, "%x %x %x\n", p1, p2, p3);
+    FILE_WRITE_LEN(global_log_fd, buffer);
+    
+    //snprintf(buffer, 100, "%x %x %x\n", is0_0, is0_1, is0_2); // 1 0 1
+    //FILE_WRITE_LEN(global_log_fd, buffer);
+    
+    //snprintf(buffer, 100, "%x %x %x\n", is1_0, is1_1, is1_2); // 1 0 1 
+    //FILE_WRITE_LEN(global_log_fd, buffer);
+    
+    snprintf(buffer, 100, "%x %x %x\n", idx0, idx1, idx2);
+    FILE_WRITE_LEN(global_log_fd, buffer);
+    
+    snprintf(buffer, 100, "%x %x %x\n", ctxpart0, ctxpart1, ctxpart2);
+    FILE_WRITE_LEN(global_log_fd, buffer);
+    
+    //snprintf(buffer, 100, "%x %x %x\n", einit0, res0, is0_01);
+    //FILE_WRITE_LEN(global_log_fd, buffer);
+    
+    snprintf(buffer, 100, "res0: %x \n", res0);
+    FILE_WRITE_LEN(global_log_fd, buffer);
+    
+    snprintf(buffer, 100, "einit0: %x \n", einit0);
+    FILE_WRITE_LEN(global_log_fd, buffer);
+    
+    //snprintf(buffer, 100, "res1: %x \n", res1);
+    //FILE_WRITE_LEN(global_log_fd, buffer);
+    
+    //ksceIoWrite(global_log_fd, buff, 0x200);
+    
+  }
+  close_global_log();
+  
+  return 0;
+}
+
+#pragma pack(push, 1)
+
+//these types is taken from my project psvcd
+//https://github.com/motoharu-gosuto/psvcd
+typedef struct FsSonyRoot
+{
+   uint8_t  SCEIid[32];
+   uint32_t Unk0;
+   uint32_t Unk1;
+   uint64_t Unk2;
+   uint64_t Unk3;
+   uint64_t Unk4;
+   uint64_t Unk5;
+   uint64_t Unk6;
+   uint32_t FsOffset;
+   uint32_t VolumeLength;
+   uint8_t BytesPerSectorShift; //not sure about this one TODO: not confirmed
+   uint8_t unk70;
+   uint8_t unk71;
+   uint8_t unk72;
+   uint32_t Unk8;
+   uint32_t Unk9;
+   uint32_t Unk10;
+   uint32_t Unk11;
+   uint32_t Unk12;
+   uint8_t  BootCode[398];
+   uint8_t  Signature[2];
+} FsSonyRoot;
+
+typedef struct VBR
+{
+   uint8_t    JumpBoot[3];
+   uint8_t    FileSystemName[8];
+   uint8_t    MustBeZero[53];
+   uint64_t   PartitionOffset;
+   uint64_t   VolumeLength;
+   uint32_t    FatOffset; //sector address
+   uint32_t    FatLength; // length in sectors
+   uint32_t    ClusterHeapOffset; //sector address
+   uint32_t    ClusterCount; //number of clusters
+   uint32_t    RootDirFirstClust; //cluster address
+   uint32_t    VolumeSerialNumber;
+   uint8_t  FileSystemRevision2;
+   uint8_t  FileSystemRevision1;
+   uint8_t  VolumeFlags[2];
+   uint8_t  BytesPerSectorShift;
+   uint8_t  SectorsPerClusterShift;
+   uint8_t  NumberOfFats;
+   uint8_t  DriveSelect;
+   uint8_t  PercentInUse;
+   uint8_t  Reserved[7];
+   uint8_t  BootCode[390];
+   uint8_t  Signature[2];
+} VBR;
+
+#pragma pack(pop)
+
+FsSonyRoot root_fs_sector;
+
+VBR vbr_sector;
+
+int dump_sectors()
+{
+  sd_ctx_global* e0 = ksceSdifGetSdGlobalContextElement(0); //element from global context - size 0x24C0
+  
+  sd_ctx_part* p0 = ksceSdifGetSdGlobalContextElement0Part(0); //real sd context - at offset 0x2414 - size currently unknown
+  
+  sd_ctx_part* einit0 = 0;
+  int res0 = ksceSdifInitializeSdDevice(0, &einit0); //initialize sd device
+  if(res0 < 0)
+    return res0;
+  
+  memset((void*)&root_fs_sector, 0, 0x200);
+  int res1 = ksceSdifReadSectorAsync(einit0, 0, (void*)&root_fs_sector, SD_MODE_SINGLE_OP);
+  
+  open_global_log(); 
+  ksceIoWrite(global_log_fd, (void*)&root_fs_sector, 0x200);
+  close_global_log();
+  
+  if(strncmp("Sony Computer Entertainment Inc.", (char*)root_fs_sector.SCEIid, 0x20) != 0)
+    return -1;
+
+  memset((void*)&vbr_sector, 0, 0x200);
+  int res2 = ksceSdifReadSectorAsync(einit0, root_fs_sector.FsOffset, (void*)&vbr_sector, SD_MODE_SINGLE_OP);
+  if(res0 < 0)
+    return res0;
+  
+  open_global_log(); 
+  ksceIoWrite(global_log_fd, (void*)&vbr_sector, 0x200);
+  close_global_log();
+  
+  return 0; 
+}
+
+char temp_sector[0x200];
+
+int dump_sectors2(int dev_index)
+{
+  sd_ctx_global* e0 = ksceSdifGetSdGlobalContextElement(dev_index); //element from global context - size 0x24C0
+  
+  sd_ctx_part* p0 = ksceSdifGetSdGlobalContextElement0Part(dev_index); //real sd context - at offset 0x2414 - size currently unknown
+  
+  sd_ctx_part* einit0 = 0;
+  int res0 = ksceSdifInitializeSdDevice(dev_index, &einit0); //initialize sd device
+  if(res0 < 0)
+    return res0;
+  
+  int secIndex = 0;  
+  while(secIndex < 0x500)
+  {
+    //memset(temp_sector, 0, 0x200);
+    int res1 = ksceSdifReadSectorAsync(einit0, secIndex, temp_sector, SD_MODE_SINGLE_OP);
+    if(res1 < 0)
+      return -1;
+    
+    open_global_log(); 
+    ksceIoWrite(global_log_fd, temp_sector, 0x200);
+    close_global_log();
+    
+    secIndex++;
+  }
+  
+  return 0;
+}
  
 int module_start(SceSize argc, const void *args) 
 {
-   open_global_log();
-   FILE_WRITE(global_log_fd, "Hello from psvkirk 1!\n");
-   close_global_log();
+   //open_global_log();
+   //FILE_WRITE(global_log_fd, "Hello from psvkirk 2!\n");
+   //close_global_log();
+  
+   //dump_sd_elements();
+   
+   //dump_sectors();
+   
+   dump_sectors2(0); //ONLY USE INDEX 0 !
    
    return SCE_KERNEL_START_SUCCESS;
 }

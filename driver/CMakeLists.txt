@@ -47,6 +47,7 @@ target_link_libraries(psvkirk
   SceSblSmCommForKernel_stub
   SceSblSsMgrForDriver_stub
   SceSysrootForKernel_stub
+  SceSdifForDriver_stub
 )
 
 vita_create_self(psvkirk.skprx psvkirk

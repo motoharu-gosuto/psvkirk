@@ -33,21 +33,10 @@ target_link_libraries(psvkirk
   gcc
   SceSysmemForDriver_stub
   SceSysclibForDriver_stub
-  #SceSysmemForKernel_stub
-  #SceCpuForKernel_stub
-  #SceCpuForDriver_stub
-  #SceSysrootForKernel_stub
-  #SceThreadmgrForKernel_stub
-  #SceThreadmgrForDriver_stub
-  #SceModulemgrForKernel_stub
-  #SceModulemgrForDriver_stub
   SceIofilemgrForDriver_stub
-  #SceSblACMgrForDriver_stub
-  #SceDebugForDriver_stub
   SceSblSmCommForKernel_stub
   SceSblSsMgrForDriver_stub
   SceSysrootForKernel_stub
-  SceSdifForDriver_stub
 )
 
 vita_create_self(psvkirk.skprx psvkirk

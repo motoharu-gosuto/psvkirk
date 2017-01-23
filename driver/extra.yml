@@ -14,7 +14,7 @@ modules:
         kernel: true
         nid: 0x3691DA45
         functions:
-          ksceSysrootGetElf: 0xf10ab792
+          ksceSysrootGetElfInfo: 0xf10ab792
   SceSblSsSmComm:
     nid: 0xBB4B5D92
     libraries:
@@ -22,25 +22,7 @@ modules:
         kernel: true
         nid: 0xCD3C89B6
         functions:
-          ksceSblSmCommStartSm: 0x039c73b1
+          ksceSblSmCommStartSm1: 0x039c73b1
+          ksceSblSmCommStartSm2: 0x7863a0cc
           ksceSblSmCommCallFunc: 0xdb9fc204
           ksceSblSmCommStopSm: 0x0631f8ed
-          ksceSblSmCommStartSm2: 0x7863a0cc
-  SceSdif:
-    nid: 0x2E7C52F7
-    libraries:
-      SceSdifForDriver:
-        kernel: true
-        nid: 0x96D306FA
-        functions:
-          ksceSdifGetSdGlobalContextElement: 0xdc8f52f8
-          ksceSdifGetSdGlobalContextElement0Part: 0x6a71987f
-          ksceSdifGetSdGlobalContextElement1Part: 0xb9ea5b1e
-          ksceSdifGetSdGlobalContextElement2Part: 0x6a8235fc
-          ksceSdifGetGetCardInsertState1: 0x36a2b01b
-          ksceSdifGetGetCardInsertState2: 0xfd9e5cfa
-          ksceSdifInitializeSdDevice: 0x22c82e79  
-          ksceSdifReadSectorAsync: 0x6f8d529b
-          ksceSdifReadSector: 0xb9593652
-          ksceSdifWriteSectorAsync: 0x175543d2
-          ksceSdifWriteSector: 0xe0781171

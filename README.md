@@ -24,7 +24,7 @@ For additional information you can check https://github.com/motoharu-gosuto/psvc
 # user application
 Second utility is a user application that can be installed normally through VitaShell.  
 This application acts as a server that exposes functions from kernel module.  
-The idea is to connect from client application to PS Vita and use it as a black box with Kirk cryptography.
+The idea is to connect from client application to PS Vita and use it as a black box with Kirk cryptography (F00D).
   
 # how is this used?
 Client code is also implemented and is part of my previous project https://github.com/motoharu-gosuto/psvcd  

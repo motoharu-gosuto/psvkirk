@@ -20,7 +20,7 @@ SceUID global_log_fd;
 
 void open_global_log()
 {
-  global_log_fd = ksceIoOpen("ux0:dump/emmc_dump.bin", SCE_O_CREAT | SCE_O_APPEND | SCE_O_WRONLY, 0777);  
+  global_log_fd = ksceIoOpen("ux0:dump/psvkirk_dump.bin", SCE_O_CREAT | SCE_O_APPEND | SCE_O_WRONLY, 0777);  
 }
 
 void close_global_log()

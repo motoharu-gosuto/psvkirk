@@ -1,7 +1,7 @@
 # psvkirk
 
 This repo contains two utilities that expose some PS Vita kernel functions related to new Kirk cryptography.  
-Those functions internally communicate with F00D.
+Those functions internally communicate with F00D.  
 Kernel functions are exposed as client - server API.  
   
 ## driver module

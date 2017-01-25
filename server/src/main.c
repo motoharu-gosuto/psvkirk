@@ -52,7 +52,7 @@ int init_net()
   
   if (sceNetCtlInit() < 0)
   {
-    psvDebugScreenPrintf("psvkirk: faild to initialize netctl\n");
+    psvDebugScreenPrintf("psvkirk: failed to initialize netctl\n");
     return -1;
   }
   

@@ -76,9 +76,9 @@ int ksceSblSsMgrGenerate40(char* dest);
 int ksceSysrootGetElfInfo(int index, elf_info_pair* state);
 
 
-int ksceSblSmCommStartSm1(int num0, char* elf_data, int elf_size, int num1, sm_comm_ctx_130* ctx_130, int* id);
+int ksceSblSmCommStartSm1(int priority, char* elf_data, int elf_size, int num1, sm_comm_ctx_130* ctx_130, int* id);
 
-int ksceSblSmCommStartSm2(int num0, char* elf_path, int num1, sm_comm_ctx_130* ctx_130, int* id);
+int ksceSblSmCommStartSm2(int priority, char* elf_path, int num1, sm_comm_ctx_130* ctx_130, int* id);
 
 int ksceSblSmCommCallFunc(int id, int command_id, int* f00d_resp, sm_comm_context* buffer, int size);
 
